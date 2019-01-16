@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[iOS提示用self替换_的警告]]></title>
+    <url>%2F2019%2F01%2F16%2FiOS%E6%8F%90%E7%A4%BA%E7%94%A8self%E6%9B%BF%E6%8D%A2-%E7%9A%84%E8%AD%A6%E5%91%8A-1%2F</url>
+    <content type="text"><![CDATA[问题: iOS出现Block implicitly retains ‘self’; explicitly mention ‘self’ to indicate this…警告 解决: Building Settings -&gt;CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF=NO]]></content>
+      <categories>
+        <category>iOS</category>
+      </categories>
+      <tags>
+        <tag>iOS</tag>
+      </tags>
+  </entry>
+  <entry>
     <title><![CDATA[hexo博客中不蒜子统计无法显示问题]]></title>
     <url>%2F2019%2F01%2F16%2Fhexo%E5%8D%9A%E5%AE%A2%E4%B8%AD%E4%B8%8D%E8%92%9C%E5%AD%90%E7%BB%9F%E8%AE%A1%E6%97%A0%E6%B3%95%E6%98%BE%E7%A4%BA%E9%97%AE%E9%A2%98%2F</url>
     <content type="text"><![CDATA[问题: 最近博客中的访问统计无法显示原因:不蒜子统计的域名过期了，而js的引用就会有问题解决方法:1、找到NexT下引用不蒜子统计的方法。文件路径为/theme/next/layout/_third-party/analytics/busuanzi-counter.swig文件。2、将里面的dn-lbstatics.qbox.me替换为busuanzi.ibruce.info]]></content>
