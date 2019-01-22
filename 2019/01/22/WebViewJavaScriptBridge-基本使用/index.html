@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="iOS," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="WebViewJavaScriptBridge 基本原理WebViewJavascriptBridge开源库使用，本质上，它也是通过webview的代理拦截scheme，然后注入相应的JS。其中基本原理: 1234567891011121314151617181920- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(N">
+<meta name="keywords" content="iOS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="WebViewJavaScriptBridge 基本使用">
+<meta property="og:url" content="http://lianhui.site/2019/01/22/WebViewJavaScriptBridge-基本使用/index.html">
+<meta property="og:site_name" content="记录那曾经">
+<meta property="og:description" content="WebViewJavaScriptBridge 基本原理WebViewJavascriptBridge开源库使用，本质上，它也是通过webview的代理拦截scheme，然后注入相应的JS。其中基本原理: 1234567891011121314151617181920- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(N">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-01-22T07:29:48.294Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="WebViewJavaScriptBridge 基本使用">
+<meta name="twitter:description" content="WebViewJavaScriptBridge 基本原理WebViewJavascriptBridge开源库使用，本质上，它也是通过webview的代理拦截scheme，然后注入相应的JS。其中基本原理: 1234567891011121314151617181920- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(N">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Mr.Liu'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://lianhui.site/2019/01/22/WebViewJavaScriptBridge-基本使用/"/>
+
+
+
+
+
+  <title>WebViewJavaScriptBridge 基本使用 | 记录那曾经</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">记录那曾经</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">所有的不甘，都是因为还心存梦想，在你放弃之前，好好拼一把，只怕心老，不怕路长。</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://lianhui.site/2019/01/22/WebViewJavaScriptBridge-基本使用/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Mr. Liu">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://avatars0.githubusercontent.com/u/26902613?s=400&u=547844400179f40b9fd79ec22f4c4ed16b03074e&v=4">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="记录那曾经">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">WebViewJavaScriptBridge 基本使用</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-22T14:24:47+08:00">
+                2019-01-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index">
+                    <span itemprop="name">iOS</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+            <span class="post-meta-divider">|</span>
+            <span class="page-pv">本文总阅读量
+            <span class="busuanzi-value" id="busuanzi_value_page_pv" ></span>次
+            </span>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h4 id="WebViewJavaScriptBridge-基本原理"><a href="#WebViewJavaScriptBridge-基本原理" class="headerlink" title="WebViewJavaScriptBridge 基本原理"></a>WebViewJavaScriptBridge 基本原理</h4><p>WebViewJavascriptBridge开源库使用，本质上，它也是通过webview的代理拦截scheme，然后注入相应的JS。其中基本原理:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType &#123;</span><br><span class="line">    if (webView != _webView) &#123; return YES; &#125;</span><br><span class="line">    NSURL *url = [request URL];</span><br><span class="line">    __strong WVJB_WEBVIEW_DELEGATE_TYPE* strongDelegate = _webViewDelegate;</span><br><span class="line">    if ([_base isCorrectProcotocolScheme:url]) &#123;</span><br><span class="line">        if ([_base isBridgeLoadedURL:url]) &#123;</span><br><span class="line">            [_base injectJavascriptFile];</span><br><span class="line">        &#125; else if ([_base isQueueMessageURL:url]) &#123;</span><br><span class="line">            NSString *messageQueueString = [self _evaluateJavascript:[_base webViewJavascriptFetchQueyCommand]];</span><br><span class="line">            [_base flushMessageQueue:messageQueueString];</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            [_base logUnkownMessage:url];</span><br><span class="line">        &#125;</span><br><span class="line">        return NO;</span><br><span class="line">    &#125; else if (strongDelegate &amp;&amp; [strongDelegate respondsToSelector:@selector(webView:shouldStartLoadWithRequest:navigationType:)]) &#123;</span><br><span class="line">        return [strongDelegate webView:webView shouldStartLoadWithRequest:request navigationType:navigationType];</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        return YES;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在拦截后，通过先通过-isBridgeLoadedURL:方法判断URL是否是需要bridge的URL，若是，则通过injectJavascriptFile方法注入JS；否则判断URL是否是队列消息，若是，则执行查询命令JS并刷新消息队列；最后，URL被识别为未知的消息。</p>
+<h4 id="WebViewJavaScriptBridge准备工作"><a href="#WebViewJavaScriptBridge准备工作" class="headerlink" title="WebViewJavaScriptBridge准备工作"></a>WebViewJavaScriptBridge准备工作</h4><h5 id="项目中导入框架-WebViewJavaScriptBridge"><a href="#项目中导入框架-WebViewJavaScriptBridge" class="headerlink" title="项目中导入框架 WebViewJavaScriptBridge"></a>项目中导入框架 <code>WebViewJavaScriptBridge</code></h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pod ‘WebViewJavascriptBridge’</span><br></pre></td></tr></table></figure>
+<h5 id="导入头文件"><a href="#导入头文件" class="headerlink" title="导入头文件"></a>导入头文件</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">#import &lt;WebViewJavascriptBridge.h&gt;</span><br></pre></td></tr></table></figure>
+<h6 id="建立-WebViewJavaScriptBridge-和-WebView-之间的关系。"><a href="#建立-WebViewJavaScriptBridge-和-WebView-之间的关系。" class="headerlink" title="建立 WebViewJavaScriptBridge 和 WebView 之间的关系。"></a>建立 WebViewJavaScriptBridge 和 WebView 之间的关系。</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">//给哪个webview建立JS与OjbC的沟通桥梁</span><br><span class="line">_jsBridge = [WebViewJavascriptBridge bridgeForWebView:_webView];</span><br><span class="line"></span><br><span class="line">// 设置代理，如果不需要实现，可以不设置</span><br><span class="line">[_jsBridge setWebViewDelegate:self];</span><br><span class="line"></span><br><span class="line">// 开启日志，方便调试</span><br><span class="line">[WebViewJavascriptBridge enableLogging];</span><br></pre></td></tr></table></figure>
+<h6 id="注册block"><a href="#注册block" class="headerlink" title="注册block"></a>注册block</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"> /**</span><br><span class="line"> js调用OC的方法 js会调动refresh方法，这是OC注册给JS调用的</span><br><span class="line"></span><br><span class="line"> @param data js传递过来的参数  不一定要传</span><br><span class="line"> @param responseCallback OC端执行完毕后 OC端通过responseCallback回调JS端 JS端可以得到所需要的数据</span><br><span class="line"> @return return value description</span><br><span class="line"> */</span><br><span class="line">[_jsBridge registerHandler:@&quot;refresh&quot; handler:^(id data, WVJBResponseCallback responseCallback) &#123;</span><br><span class="line">    NSLog(@&quot;js call getBlogNameFromObjC, data from js is %@&quot;, data);</span><br><span class="line">    self.navigationController.navigationBar.barTintColor = [UIColor redColor];</span><br><span class="line">    if (responseCallback) &#123;</span><br><span class="line">        // 反馈给JS</span><br><span class="line">        responseCallback(data);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;];</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">/**</span><br><span class="line"> OC调用js的方法 js会调用bgColor方法  直接调用js端注册的bgColor方法</span><br><span class="line"> @param data OC传递给js的参数</span><br><span class="line"> @param responseData JS端通过responseCallback回调OC端 OC端可以得到js传递回来的参数</span><br><span class="line"> @return return value description</span><br><span class="line"> */</span><br><span class="line">[_jsBridge callHandler:@&quot;bgColor&quot; data:@&quot;tom&quot; responseCallback:^(id responseData) &#123;</span><br><span class="line">    NSLog(responseData);</span><br><span class="line">&#125;];</span><br></pre></td></tr></table></figure>
+<h5 id="移除注册的oc-block"><a href="#移除注册的oc-block" class="headerlink" title="移除注册的oc block"></a>移除注册的oc block</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">-(void)viewDidDisappear:(BOOL)animated</span><br><span class="line">&#123;</span><br><span class="line">    [super viewDidDisappear:animated];</span><br><span class="line">    [_jsBridge removeHandler:@&quot;refresh&quot;];</span><br><span class="line">    [_jsBridge removeHandler:@&quot;bgColor&quot;];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+<h5 id="js端所需要的步骤"><a href="#js端所需要的步骤" class="headerlink" title="js端所需要的步骤"></a>js端所需要的步骤</h5><p>将下面的代码放入JS中:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">/*这段代码是固定的，必须要放到js中*/</span><br><span class="line">function setupWebViewJavascriptBridge(callback) &#123;</span><br><span class="line">    if (window.WebViewJavascriptBridge) &#123; return callback(WebViewJavascriptBridge); &#125;</span><br><span class="line">    if (window.WVJBCallbacks) &#123; return window.WVJBCallbacks.push(callback); &#125;</span><br><span class="line">    window.WVJBCallbacks = [callback];</span><br><span class="line">    var WVJBIframe = document.createElement(&apos;iframe&apos;);</span><br><span class="line">    WVJBIframe.style.display = &apos;none&apos;;</span><br><span class="line">    WVJBIframe.src = &apos;wvjbscheme://__BRIDGE_LOADED__&apos;;</span><br><span class="line">    document.documentElement.appendChild(WVJBIframe);</span><br><span class="line">    setTimeout(function() &#123; document.documentElement.removeChild(WVJBIframe) &#125;, 0)</span><br><span class="line">&#125;</span><br><span class="line">setupWebViewJavascriptBridge(function(bridge) &#123;</span><br><span class="line">    /* Initialize your app here */</span><br><span class="line">    //所有与iOS交互的JS代码放这里！</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<h5 id="demo中-的html文件"><a href="#demo中-的html文件" class="headerlink" title="demo中 的html文件"></a>demo中 的html文件</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br></pre></td><td class="code"><pre><span class="line">&lt;!doctype html&gt;</span><br><span class="line">&lt;html lang=&quot;en&quot;&gt;</span><br><span class="line">  &lt;head&gt;</span><br><span class="line">    &lt;!-- Required meta tags --&gt;</span><br><span class="line">    &lt;meta charset=&quot;utf-8&quot;&gt;</span><br><span class="line">    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1, shrink-to-fit=no&quot;&gt;</span><br><span class="line">    &lt;!-- Bootstrap CSS --&gt;</span><br><span class="line">    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css&quot; integrity=&quot;sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm&quot; crossorigin=&quot;anonymous&quot;&gt;</span><br><span class="line">    &lt;title&gt;无网络&lt;/title&gt;</span><br><span class="line">		&lt;style type=&quot;text/css&quot;&gt;</span><br><span class="line">				*&#123;</span><br><span class="line">            margin: 0;</span><br><span class="line">            padding: 0;</span><br><span class="line">        &#125;</span><br><span class="line">        html,body&#123;</span><br><span class="line">            width: 100%;</span><br><span class="line">            height: 100%;</span><br><span class="line">        &#125;</span><br><span class="line">			.box&#123;</span><br><span class="line">				width: 100%;</span><br><span class="line">				height: 100%;</span><br><span class="line">				display: flex;</span><br><span class="line">				justify-content: center;</span><br><span class="line">				align-items: center;</span><br><span class="line">				flex-direction: column;</span><br><span class="line">			&#125;</span><br><span class="line">			.pic&#123;</span><br><span class="line">				margin: 0 auto;</span><br><span class="line">				padding: 0;</span><br><span class="line">				width: 100px;</span><br><span class="line">				height: 100px;</span><br><span class="line">				</span><br><span class="line">			&#125;</span><br><span class="line">			.text&#123;</span><br><span class="line">				padding: 10px;</span><br><span class="line">				font-size: 20px;</span><br><span class="line">				color: #e6e6e6;</span><br><span class="line">			&#125;</span><br><span class="line">			.btn-get&#123;</span><br><span class="line">				cursor: pointer;</span><br><span class="line">				color: #e6e6e6;</span><br><span class="line">				border: 1px solid #e6e6e6;</span><br><span class="line">				border-radius: 8px;</span><br><span class="line">				padding: 10px 20px;</span><br><span class="line">			&#125;</span><br><span class="line">		&lt;/style&gt;</span><br><span class="line">  &lt;/head&gt;</span><br><span class="line">  &lt;body&gt;</span><br><span class="line">		&lt;script type=&quot;text/javascript&quot;&gt;</span><br><span class="line">			/*这段代码是固定的，必须要放到js中*/</span><br><span class="line">			function setupWebViewJavascriptBridge(callback) &#123;</span><br><span class="line">					if (window.WebViewJavascriptBridge) &#123; return callback(WebViewJavascriptBridge); &#125;</span><br><span class="line">					if (window.WVJBCallbacks) &#123; return window.WVJBCallbacks.push(callback); &#125;</span><br><span class="line">					window.WVJBCallbacks = [callback];</span><br><span class="line">					var WVJBIframe = document.createElement(&apos;iframe&apos;);</span><br><span class="line">					WVJBIframe.style.display = &apos;none&apos;;</span><br><span class="line">					WVJBIframe.src = &apos;wvjbscheme://__BRIDGE_LOADED__&apos;;</span><br><span class="line">					document.documentElement.appendChild(WVJBIframe);</span><br><span class="line">					setTimeout(function() &#123; document.documentElement.removeChild(WVJBIframe) &#125;, 0)</span><br><span class="line">			&#125;</span><br><span class="line">			setupWebViewJavascriptBridge(function(bridge) &#123;</span><br><span class="line">					/* Initialize your app here */</span><br><span class="line">					document.getElementById(&apos;btn-get&apos;).onclick = function (e) &#123;</span><br><span class="line">						alert(&quot;JS 调用了 OC&quot;);</span><br><span class="line">						bridge.callHandler(&apos;refresh&apos;,&#123;&apos;url&apos;: &apos;http://www.baidu.com&apos;&#125;,function(response) &#123;</span><br><span class="line">							alert(&quot;JS 调用了 OC 注册的 colorClick 方法&quot;+response);</span><br><span class="line">						&#125;)</span><br><span class="line">					&#125;;</span><br><span class="line">					</span><br><span class="line">					bridge.registerHandler(&apos;bgColor&apos;,function(data,responseCallback)&#123;</span><br><span class="line">							alert(&apos;oc调用js bgColor&apos;+  data);</span><br><span class="line">							document.body.style.backgroundColor = &quot;orange&quot;;</span><br><span class="line">							responseCallback(&apos;tom&apos;);</span><br><span class="line">					&#125;);</span><br><span class="line">			&#125;)</span><br><span class="line">		&lt;/script&gt;</span><br><span class="line">    &lt;div class=&quot;box&quot;&gt;</span><br><span class="line">			&lt;img class=&quot;pic&quot; src=&quot;./无网络.png&quot; /&gt;</span><br><span class="line">			&lt;div class=&quot;text&quot;&gt;当前没有网络哦~&lt;/div&gt;</span><br><span class="line">			&lt;div class=&quot;btn-get&quot; id=&quot;btn-get&quot; &gt;点击重新加载&lt;/div&gt;</span><br><span class="line">		&lt;/div&gt;</span><br><span class="line">    &lt;!-- Optional JavaScript --&gt;</span><br><span class="line">    &lt;!-- jQuery first, then Popper.js, then Bootstrap JS --&gt;</span><br><span class="line">    &lt;script src=&quot;https://cdn.bootcss.com/jquery/3.2.1/jquery.slim.min.js&quot; integrity=&quot;sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN&quot; crossorigin=&quot;anonymous&quot;&gt;&lt;/script&gt;</span><br><span class="line">    &lt;script src=&quot;https://cdn.bootcss.com/popper.js/1.12.9/umd/popper.min.js&quot; integrity=&quot;sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q&quot; crossorigin=&quot;anonymous&quot;&gt;&lt;/script&gt;</span><br><span class="line">    &lt;script src=&quot;https://cdn.bootcss.com/bootstrap/4.0.0/js/bootstrap.min.js&quot; integrity=&quot;sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl&quot; crossorigin=&quot;anonymous&quot;&gt;&lt;/script&gt;</span><br><span class="line">  &lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+<h4 id="JS调用OC场景"><a href="#JS调用OC场景" class="headerlink" title="JS调用OC场景"></a>JS调用OC场景</h4><p>在html中有个按钮，点击后更改iOS中NavigationBar的颜色</p>
+<p>1、在OC中，通过 WebViewJavascriptBridge 注册一个修改 navigationBar 颜色的 Block 别名为 refresh。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> js调用OC的方法 js会调动refresh方法，这是OC注册给JS调用的</span><br><span class="line"></span><br><span class="line"> @param data js传递过来的参数  不一定要传</span><br><span class="line"> @param responseCallback OC端执行完毕后 OC端通过responseCallback回调JS端 JS端可以得到所需要的数据</span><br><span class="line"> @return return value description</span><br><span class="line"> */</span><br><span class="line">[_jsBridge registerHandler:@&quot;refresh&quot; handler:^(id data, WVJBResponseCallback responseCallback) &#123;</span><br><span class="line">    NSLog(@&quot;js call getBlogNameFromObjC, data from js is %@&quot;, data);</span><br><span class="line">    self.navigationController.navigationBar.barTintColor = [UIColor redColor];</span><br><span class="line">    [ws getAdData];</span><br><span class="line">    if (responseCallback) &#123;</span><br><span class="line">        // 反馈给JS</span><br><span class="line">        responseCallback(data);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;];</span><br></pre></td></tr></table></figure>
+<p>2、在js中 往桥梁里 注册一个 别名为refresh的方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">setupWebViewJavascriptBridge(function(bridge) &#123;</span><br><span class="line">	/* Initialize your app here */</span><br><span class="line">	document.getElementById(&apos;btn-get&apos;).onclick = function (e) &#123;</span><br><span class="line">		alert(&quot;JS 调用了 OC&quot;);</span><br><span class="line">		bridge.callHandler(&apos;refresh&apos;,&#123;&apos;url&apos;: &apos;http://www.baidu.com&apos;&#125;,function(response) &#123;</span><br><span class="line">			alert(&quot;JS 调用了 OC 注册的 colorClick 方法&quot;+response);</span><br><span class="line">		&#125;)</span><br><span class="line">	&#125;;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>该方法的其他使用方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">// JS 单纯的调用 OC 的 block</span><br><span class="line">bridge.callHandler(&apos;refresh&apos;);</span><br><span class="line"></span><br><span class="line">// JS 调用 OC 的 block，并传递 JS 参数</span><br><span class="line">bridge.callHandler(&apos;refresh&apos;,&quot;JS 参数&quot;);</span><br><span class="line"></span><br><span class="line">// JS 调用 OC 的 block，传递 JS 参数，并接受 OC 的返回值。</span><br><span class="line">bridge.callHandler(&apos;refresh&apos;,&#123;data : &quot;这是 JS 传递到 OC 的扫描数据&quot;&#125;,function(dataFromOC)&#123;</span><br><span class="line">    alert(&quot;JS 调用了 OC 的扫描方法!&quot;);</span><br><span class="line">    document.getElementById(&quot;returnValue&quot;).value = dataFromOC;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h4 id="OC调用JS场景"><a href="#OC调用JS场景" class="headerlink" title="OC调用JS场景"></a>OC调用JS场景</h4><p>通过OC中的一个按钮点击，更改html里body的背景颜色</p>
+<p>1、在js中，往桥梁中 注册一个修改body背景颜色的方法 别名为bgColor</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">setupWebViewJavascriptBridge(function(bridge) &#123;</span><br><span class="line">	/* Initialize your app here */</span><br><span class="line">	bridge.registerHandler(&apos;bgColor&apos;,function(data,responseCallback)&#123;</span><br><span class="line">			alert(&apos;oc调用js bgColor&apos;+  data);</span><br><span class="line">			document.body.style.backgroundColor = &quot;orange&quot;;</span><br><span class="line">			responseCallback(&apos;tom&apos;);</span><br><span class="line">	&#125;);</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>2、在OC端通过桥梁调用这个bgColor</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> OC调用js的方法 js会调用bgColor方法  直接调用js端注册的bgColor方法</span><br><span class="line"> @param data OC传递给js的参数</span><br><span class="line"> @param responseData JS端通过responseCallback回调OC端 OC端可以得到js传递回来的参数</span><br><span class="line"> @return return value description</span><br><span class="line"> */</span><br><span class="line">[_jsBridge callHandler:@&quot;bgColor&quot; data:@&quot;tom&quot; responseCallback:^(id responseData) &#123;</span><br><span class="line">    NSLog(responseData);</span><br><span class="line">&#125;];</span><br></pre></td></tr></table></figure>
+<p>该方法的其他使用方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 单纯的调用 JSFunction，不往 JS 传递参数，也不需要 JSFunction 的返回值。</span><br><span class="line">[_jsBridge callHandler:@&quot;bgColor&quot;];</span><br><span class="line">// 调用 JSFunction，并向 JS 传递参数，但不需要 JSFunciton 的返回值。</span><br><span class="line">[_jsBridge callHandler:@&quot;bgColor&quot; data:@&quot;把 HTML 的背景颜色改成橙色!!!!&quot;];</span><br><span class="line">// 调用 JSFunction ，并向 JS 传递参数，也需要 JSFunction 的返回值。</span><br><span class="line">[_jsBridge callHandler:@&quot;bgColor&quot; data:@&quot;传递给 JS 的参数&quot; responseCallback:^(id responseData) &#123;</span><br><span class="line">    NSLog(@&quot;JS 的返回值: %@&quot;,responseData);</span><br><span class="line">&#125;];</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/iOS/" rel="tag"># iOS</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/01/16/iOS提示用self替换-的警告-1/" rel="next" title="iOS提示用self替换_的警告">
+                <i class="fa fa-chevron-left"></i> iOS提示用self替换_的警告
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        
+<script>
+  with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='//bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+</script>
+
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="https://avatars0.githubusercontent.com/u/26902613?s=400&u=547844400179f40b9fd79ec22f4c4ed16b03074e&v=4"
+                alt="Mr. Liu" />
+            
+              <p class="site-author-name" itemprop="name">Mr. Liu</p>
+              <p class="site-description motion-element" itemprop="description">记录前端 Yii2 iOS 使用遇到的一些问题，共同学习 共同进步呀。</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">25</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#WebViewJavaScriptBridge-基本原理"><span class="nav-number">1.</span> <span class="nav-text">WebViewJavaScriptBridge 基本原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#WebViewJavaScriptBridge准备工作"><span class="nav-number">2.</span> <span class="nav-text">WebViewJavaScriptBridge准备工作</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#项目中导入框架-WebViewJavaScriptBridge"><span class="nav-number">2.1.</span> <span class="nav-text">项目中导入框架 WebViewJavaScriptBridge</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#导入头文件"><span class="nav-number">2.2.</span> <span class="nav-text">导入头文件</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#建立-WebViewJavaScriptBridge-和-WebView-之间的关系。"><span class="nav-number">2.2.1.</span> <span class="nav-text">建立 WebViewJavaScriptBridge 和 WebView 之间的关系。</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#注册block"><span class="nav-number">2.2.2.</span> <span class="nav-text">注册block</span></a></li></ol></li><li class="nav-item nav-level-5"><a class="nav-link" href="#移除注册的oc-block"><span class="nav-number">2.3.</span> <span class="nav-text">移除注册的oc block</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#js端所需要的步骤"><span class="nav-number">2.4.</span> <span class="nav-text">js端所需要的步骤</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#demo中-的html文件"><span class="nav-number">2.5.</span> <span class="nav-text">demo中 的html文件</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#JS调用OC场景"><span class="nav-number">3.</span> <span class="nav-text">JS调用OC场景</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#OC调用JS场景"><span class="nav-number">4.</span> <span class="nav-text">OC调用JS场景</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mr. Liu</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">
+      本站访客数
+      <span class="busuanzi-value" id="busuanzi_value_site_uv"></span>
+      人次
+    </span>
+  
+
+  
+    <span class="site-pv">
+      本站总访问量
+      <span class="busuanzi-value" id="busuanzi_value_site_pv"></span>
+      次
+    </span>
+  
+</div>
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
